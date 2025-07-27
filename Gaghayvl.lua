@@ -1,5 +1,6 @@
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService") -- Thêm TextService để đo kích thước văn bản
 
 -- Tạo ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -16,7 +17,7 @@ local notifications = {}
 -- Hàm cập nhật vị trí các thông báo
 local function updateNotificationPositions()
     for i, notif in ipairs(notifications) do
-        local targetPosition = UDim2.new(0.5, -100, 0, 10 + (i - 1) * 60)
+        local targetPosition = UDim2.new(0.5, -notif.Size.X.Offset / 2, 0, 10 + (i - 1) * 60) -- Căn giữa dựa trên chiều rộng động
         local tweenUpdate = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Position = targetPosition
         })
@@ -39,7 +40,7 @@ local function createNotification(message, isError)
         if oldestNotification and oldestNotification.Parent then
             local tweenOut = TweenService:Create(oldestNotification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 BackgroundTransparency = 1,
-                Position = UDim2.new(0.5, -100, 0, oldestNotification.Position.Y.Offset + 20)
+                Position = UDim2.new(0.5, -oldestNotification.Size.X.Offset / 2, 0, oldestNotification.Position.Y.Offset + 20)
             })
             local tweenTextOut = TweenService:Create(oldestNotification:FindFirstChildOfClass("TextLabel"), TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 TextTransparency = 1
@@ -55,29 +56,43 @@ local function createNotification(message, isError)
 
     -- Tạo khung thông báo
     local notificationFrame = Instance.new("Frame")
-    notificationFrame.Size = UDim2.new(0, 200, 0, 50)
-    notificationFrame.Position = UDim2.new(0.5, -100, 0, -50) -- Bắt đầu ngoài màn hình
-    notificationFrame.BackgroundColor3 = isError and Color3.fromRGB(200, 50, 50) or Color3.fromRGB(20, 20, 20)
-    notificationFrame.BorderSizePixel = 0
-    notificationFrame.ZIndex = 15
-    notificationFrame.Parent = screenGui
-
     local notificationText = Instance.new("TextLabel")
-    notificationText.Size = UDim2.new(1, 0, 1, 0)
+    
+    -- Cấu hình TextLabel trước để đo kích thước
+    notificationText.Size = UDim2.new(1, -20, 1, -10) -- Padding 10px mỗi bên
     notificationText.BackgroundTransparency = 1
     notificationText.Text = message
     notificationText.TextColor3 = Color3.fromRGB(255, 255, 255)
     notificationText.TextSize = 16
     notificationText.Font = Enum.Font.SourceSans
     notificationText.ZIndex = 16
+    notificationText.TextWrapped = true -- Cho phép xuống dòng
     notificationText.Parent = notificationFrame
+
+    -- Đo kích thước văn bản
+    local textSize = TextService:GetTextSize(
+        message,
+        16, -- Kích thước chữ
+        Enum.Font.SourceSans,
+        Vector2.new(1000, 50) -- Chiều rộng tối đa để đo, chiều cao cố định
+    )
+    local frameWidth = math.max(200, textSize.X + 20) -- Chiều rộng tối thiểu 200, cộng padding
+    local frameHeight = math.max(50, textSize.Y + 10) -- Chiều cao tối thiểu 50, cộng padding
+
+    -- Cấu hình Frame
+    notificationFrame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
+    notificationFrame.Position = UDim2.new(0.5, -frameWidth / 2, 0, -frameHeight) -- Bắt đầu ngoài màn hình, căn giữa
+    notificationFrame.BackgroundColor3 = isError and Color3.fromRGB(200, 50, 50) or Color3.fromRGB(20, 20, 20)
+    notificationFrame.BorderSizePixel = 0
+    notificationFrame.ZIndex = 15
+    notificationFrame.Parent = screenGui
 
     -- Thêm sự kiện nhấn để tắt thông báo
     notificationFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             local tweenOut = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 BackgroundTransparency = 1,
-                Position = UDim2.new(0.5, -100, 0, notificationFrame.Position.Y.Offset + 20)
+                Position = UDim2.new(0.5, -notificationFrame.Size.X.Offset / 2, 0, notificationFrame.Position.Y.Offset + 20)
             })
             local tweenTextOut = TweenService:Create(notificationText, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 TextTransparency = 1
@@ -102,7 +117,7 @@ local function createNotification(message, isError)
 
     -- Hiệu ứng di chuyển xuống vị trí chính xác
     local tweenIn = TweenService:Create(notificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, -100, 0, 10 + (#notifications - 1) * 60)
+        Position = UDim2.new(0.5, -frameWidth / 2, 0, 10 + (#notifications - 1) * 60)
     })
     tweenIn:Play()
 
@@ -112,7 +127,7 @@ local function createNotification(message, isError)
         if notificationFrame.Parent then
             local tweenOut = TweenService:Create(notificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 BackgroundTransparency = 1,
-                Position = UDim2.new(0.5, -100, 0, notificationFrame.Position.Y.Offset + 20)
+                Position = UDim2.new(0.5, -notificationFrame.Size.X.Offset / 2, 0, notificationFrame.Position.Y.Offset + 20)
             })
             local tweenTextOut = TweenService:Create(notificationText, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 TextTransparency = 1
@@ -158,7 +173,7 @@ spawn(function()
     wait(5)
     loadingFrame:Destroy()
     createNotification("Script loaded successfully!", false)
-    createNotification("Welcome to HackHub, enjoy your experience!", false) -- Thêm thông báo welcome
+    createNotification("🚀 Welcome to HackHub! Unleash Epic Adventures Await You! 🎮", false) -- Thông báo welcome cuốn hút hơn
 end)
 
 -- Tạo Frame chính
