@@ -1,6 +1,6 @@
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local TextService = game:GetService("TextService") -- Thêm TextService để đo kích thước văn bản
+local TextService = game:GetService("TextService") -- TextService để đo kích thước văn bản
 
 -- Tạo ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -58,8 +58,7 @@ local function createNotification(message, isError)
     local notificationFrame = Instance.new("Frame")
     local notificationText = Instance.new("TextLabel")
     
-    -- Cấu hình TextLabel trước để đo kích thước
-    notificationText.Size = UDim2.new(1, -20, 1, -10) -- Padding 10px mỗi bên
+    -- Cấu hình TextLabel
     notificationText.BackgroundTransparency = 1
     notificationText.Text = message
     notificationText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -67,14 +66,25 @@ local function createNotification(message, isError)
     notificationText.Font = Enum.Font.SourceSans
     notificationText.ZIndex = 16
     notificationText.TextWrapped = true -- Cho phép xuống dòng
+    notificationText.TextXAlignment = Enum.TextXAlignment.Center -- Căn giữa ngang
+    notificationText.TextYAlignment = Enum.TextYAlignment.Center -- Căn giữa dọc
     notificationText.Parent = notificationFrame
 
+    -- Thêm UIPadding để tạo khoảng cách đều
+    local uiPadding = Instance.new("UIPadding")
+    uiPadding.PaddingLeft = UDim.new(0, 10)
+    uiPadding.PaddingRight = UDim.new(0, 10)
+    uiPadding.PaddingTop = UDim.new(0, 5)
+    uiPadding.PaddingBottom = UDim.new(0, 5)
+    uiPadding.Parent = notificationText
+
     -- Đo kích thước văn bản
+    local maxWidth = 400 -- Chiều rộng tối đa của thông báo
     local textSize = TextService:GetTextSize(
         message,
         16, -- Kích thước chữ
         Enum.Font.SourceSans,
-        Vector2.new(1000, 50) -- Chiều rộng tối đa để đo, chiều cao cố định
+        Vector2.new(maxWidth - 20, 1000) -- Chiều rộng tối đa trừ padding, chiều cao lớn để đo wrapping
     )
     local frameWidth = math.max(200, textSize.X + 20) -- Chiều rộng tối thiểu 200, cộng padding
     local frameHeight = math.max(50, textSize.Y + 10) -- Chiều cao tối thiểu 50, cộng padding
@@ -86,6 +96,9 @@ local function createNotification(message, isError)
     notificationFrame.BorderSizePixel = 0
     notificationFrame.ZIndex = 15
     notificationFrame.Parent = screenGui
+
+    -- Đặt kích thước TextLabel để khớp với Frame (trừ padding)
+    notificationText.Size = UDim2.new(1, 0, 1, 0) -- Chiếm toàn bộ Frame, padding được xử lý bởi UIPadding
 
     -- Thêm sự kiện nhấn để tắt thông báo
     notificationFrame.InputBegan:Connect(function(input)
@@ -125,11 +138,11 @@ local function createNotification(message, isError)
     spawn(function()
         wait(3)
         if notificationFrame.Parent then
-            local tweenOut = TweenService:Create(notificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            local tweenOut = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0.5, -notificationFrame.Size.X.Offset / 2, 0, notificationFrame.Position.Y.Offset + 20)
             })
-            local tweenTextOut = TweenService:Create(notificationText, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            local tweenTextOut = TweenService:Create(notificationText, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                 TextTransparency = 1
             })
             tweenOut:Play()
@@ -173,7 +186,7 @@ spawn(function()
     wait(5)
     loadingFrame:Destroy()
     createNotification("Script loaded successfully!", false)
-    createNotification("🚀 Welcome to HackHub! Unleash Epic Adventures Await You! 🎮", false) -- Thông báo welcome cuốn hút hơn
+    createNotification("🚀 Welcome to HackHub! Unleash Epic Adventures Await You! 🎮", false) -- Thông báo welcome cuốn hút
 end)
 
 -- Tạo Frame chính
