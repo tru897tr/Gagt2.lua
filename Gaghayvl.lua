@@ -172,14 +172,46 @@ loadingFrame.Parent = screenGui
 
 local loadingText = Instance.new("TextLabel")
 loadingText.Size = UDim2.new(0, 200, 0, 50)
-loadingText.Position = UDim2.new(0.5, -100, 0.5, -25)
+loadingText.Position = UDim2.new(0.5, -100, 0.5, -50) -- Dịch lên để nhường chỗ cho progress bar
 loadingText.BackgroundTransparency = 1
-loadingText.Text = "Loading..."
+loadingText.Text = "Loading"
 loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
 loadingText.TextSize = 32
 loadingText.Font = Enum.Font.SourceSansBold
 loadingText.ZIndex = 10001
 loadingText.Parent = loadingFrame
+
+-- Tạo progress bar
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 200, 0, 20)
+progressBar.Position = UDim2.new(0.5, -100, 0.5, 0) -- Đặt ngay dưới loadingText
+progressBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Màu nền progress bar
+progressBar.BorderSizePixel = 0
+progressBar.ZIndex = 10001
+progressBar.Parent = loadingFrame
+
+local progressFill = Instance.new("Frame")
+progressFill.Size = UDim2.new(0, 0, 1, 0) -- Bắt đầu với chiều rộng 0
+progressFill.BackgroundColor3 = Color3.fromRGB(50, 200, 50) -- Màu xanh lá cho fill
+progressFill.BorderSizePixel = 0
+progressFill.ZIndex = 10002
+progressFill.Parent = progressBar
+
+-- Animate progress bar
+local tweenInfo = TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.In) -- 5 giây, tuyến tính
+local tween = TweenService:Create(progressFill, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)}) -- Fill từ 0% đến 100%
+tween:Play()
+
+-- Animate loading text với dấu chấm
+spawn(function()
+    local dots = {".", "..", "..."}
+    local index = 1
+    while loadingFrame.Parent do
+        loadingText.Text = "Loading" .. dots[index]
+        index = (index % #dots) + 1
+        wait(0.5) -- Cập nhật mỗi 0.5 giây
+    end
+end)
 
 -- Tắt màn hình loading sau 5 giây và thông báo thành công + welcome
 spawn(function()
