@@ -346,6 +346,18 @@ limitHubButton.Font = Enum.Font.SourceSansBold
 limitHubButton.ZIndex = 6
 limitHubButton.Parent = mainFrame
 
+-- Tạo nút OMG Hub
+local omgHubButton = Instance.new("TextButton")
+omgHubButton.Size = UDim2.new(0.8, 0, 0, 50)
+omgHubButton.Position = UDim2.new(0.1, 0, 0.65, 0)
+omgHubButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+omgHubButton.Text = "OMG Hub"
+omgHubButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+omgHubButton.TextSize = 20
+omgHubButton.Font = Enum.Font.SourceSansBold
+omgHubButton.ZIndex = 6
+omgHubButton.Parent = mainFrame
+
 -- Tạo nút ẩn/hiện hình tròn ở góc phải
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 50, 0, 50)
@@ -436,6 +448,18 @@ limitHubButton.MouseButton1Click:Connect(function()
         createNotification("Limit Hub executed successfully!", false)
     else
         createNotification("Error executing Limit Hub: " .. tostring(err), true)
+    end
+end)
+
+-- Xử lý nút OMG Hub
+omgHubButton.MouseButton1Click:Connect(function()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()
+    end)
+    if success then
+        createNotification("OMG Hub executed successfully!", false)
+    else
+        createNotification("Error executing OMG Hub: " .. tostring(err), true)
     end
 end)
 
