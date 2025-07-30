@@ -266,6 +266,18 @@ closeButton.Font = Enum.Font.SourceSansBold
 closeButton.ZIndex = 7
 closeButton.Parent = mainFrame
 
+-- Tạo nút Discord nhỏ ở góc trên bên phải (bên trái nút đóng)
+local discordButton = Instance.new("TextButton")
+discordButton.Size = UDim2.new(0, 20, 0, 20)
+discordButton.Position = UDim2.new(1, -60, 0, 10)
+discordButton.BackgroundColor3 = Color3.fromRGB(88, 101, 242) -- Màu xanh Discord
+discordButton.Text = "D"
+discordButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+discordButton.TextSize = 12
+discordButton.Font = Enum.Font.SourceSansBold
+discordButton.ZIndex = 7
+discordButton.Parent = mainFrame
+
 -- Tạo khung xác nhận khi đóng
 local confirmFrame = Instance.new("Frame")
 confirmFrame.Size = UDim2.new(0, 280, 0, 180)
@@ -413,6 +425,11 @@ end)
 confirmCancelButton.MouseButton1Click:Connect(function()
     confirmFrame.Visible = false
     createNotification("Close cancelled!", false)
+end)
+
+-- Xử lý nút Discord
+discordButton.MouseButton1Click:Connect(function()
+    createNotification("Discord link not set yet!", false)
 end)
 
 -- Xử lý nút Speed Up X
