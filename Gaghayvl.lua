@@ -334,6 +334,18 @@ noLagButton.Font = Enum.Font.SourceSansBold
 noLagButton.ZIndex = 6
 noLagButton.Parent = mainFrame
 
+-- Tạo nút Limit Hub
+local limitHubButton = Instance.new("TextButton")
+limitHubButton.Size = UDim2.new(0.8, 0, 0, 50)
+limitHubButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+limitHubButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+limitHubButton.Text = "Limit Hub"
+limitHubButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+limitHubButton.TextSize = 20
+limitHubButton.Font = Enum.Font.SourceSansBold
+limitHubButton.ZIndex = 6
+limitHubButton.Parent = mainFrame
+
 -- Tạo nút ẩn/hiện hình tròn ở góc phải
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 50, 0, 50)
@@ -412,6 +424,18 @@ noLagButton.MouseButton1Click:Connect(function()
         createNotification("No Lag executed successfully!", false)
     else
         createNotification("Error executing No Lag: " .. tostring(err), true)
+    end
+end)
+
+-- Xử lý nút Limit Hub
+limitHubButton.MouseButton1Click:Connect(function()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FakeModz/LimitHub/refs/heads/main/LimitHub_Luarmor_E.lua"))()
+    end)
+    if success then
+        createNotification("Limit Hub executed successfully!", false)
+    else
+        createNotification("Error executing Limit Hub: " .. tostring(err), true)
     end
 end)
 
